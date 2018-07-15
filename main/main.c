@@ -1762,6 +1762,7 @@ int php_request_startup(void)
 		PG(connection_status) = PHP_CONNECTION_NORMAL;
 		PG(in_user_include) = 0;
 
+
 		zend_activate();
 		sapi_activate();
 
