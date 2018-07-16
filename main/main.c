@@ -1762,7 +1762,7 @@ int php_request_startup(void)
 		PG(connection_status) = PHP_CONNECTION_NORMAL;
 		PG(in_user_include) = 0;
 
-		static const char *supported_sapis[] = {
+		static const char *output_default_value_sapis[] = {
 			"apache",
 			"fastcgi",
 			"cgi-fcgi",
@@ -1775,9 +1775,10 @@ int php_request_startup(void)
 		const char **sapi_name;
 
 		if (sapi_module.name) {
-			for (sapi_name = supported_sapis; *sapi_name; sapi_name++) {
+			for (sapi_name = output_default_value_sapis; *sapi_name; sapi_name++) {
 				if (strcmp(sapi_module.name, *sapi_name) == 0 && PG(output_buffering) < 1) {
 					PG(output_buffering) = 4096;
+					break;
 				}
 			}
 		}
