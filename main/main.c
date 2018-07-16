@@ -1731,7 +1731,7 @@ static void sigchld_handler(int apar)
  */
 int php_request_startup(void)
 {
-	int retval = SUCCESS;
+	int retval = SUCCESS, sapi_cgi;
 
 	zend_interned_strings_activate();
 
@@ -1762,27 +1762,14 @@ int php_request_startup(void)
 		PG(connection_status) = PHP_CONNECTION_NORMAL;
 		PG(in_user_include) = 0;
 
-//		static const char *output_default_value_sapis[] = {
-//			"apache",
-//			"fastcgi",
-//			"cgi-fcgi",
-//			"fpm-fcgi",
-//			"apache2handler",
-//			"litespeed",
-//			"uwsgi",
-//			NULL
-//		};
-
-//		const char **sapi_name;
-
-//		if (sapi_module.name) {
-//			for (sapi_name = output_default_value_sapis; *sapi_name; sapi_name++) {
-//				if (strcmp(sapi_module.name, *sapi_name) == 0 && PG(output_buffering) < 1) {
-//					PG(output_buffering) = 4096;
-//					break;
-//				}
-//			}
-//		}
+		/* In non-embedded, non-CLI mode. */
+		/* if the ini configuration file is missing, output_buffering should be the default value */
+		sapi_cgi = (
+			!strcmp(sapi_module.name, "apache2handler") ||
+			!strcmp(sapi_module.name, "fpm-fcgi")       ||
+			!strcmp(sapi_module.name, "cgi-fcgii")      ||
+			!strcmp(sapi_module.name, "litespeed")
+		);
 
 		zend_activate();
 		sapi_activate();
@@ -1812,7 +1799,7 @@ int php_request_startup(void)
 			ZVAL_STRING(&oh, PG(output_handler));
 			php_output_start_user(&oh, 0, PHP_OUTPUT_HANDLER_STDFLAGS);
 			zval_ptr_dtor(&oh);
-		} else if (PG(output_buffering) || strcmp(sapi_module.name, "cgi") == 0 || strcmp(sapi_module.name, "apache2handler") == 0 || strcmp(sapi_module.name, "fpm-fcgi") == 0) {
+		} else if (PG(output_buffering) || sapi_cgi) {
 			if (PG(output_buffering) < 1) {
 				PG(output_buffering) = 4096;
 			}
