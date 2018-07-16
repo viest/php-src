@@ -1812,7 +1812,7 @@ int php_request_startup(void)
 			ZVAL_STRING(&oh, PG(output_handler));
 			php_output_start_user(&oh, 0, PHP_OUTPUT_HANDLER_STDFLAGS);
 			zval_ptr_dtor(&oh);
-		} else if (PG(output_buffering) || strcmp(sapi_module.name, "cli")) {
+		} else if (PG(output_buffering) || strcmp(sapi_module.name, "cgi") == 0) {
 			php_output_start_user(NULL, PG(output_buffering) > 1 ? PG(output_buffering) : 0, PHP_OUTPUT_HANDLER_STDFLAGS);
 		} else if (PG(implicit_flush)) {
 			php_output_set_implicit_flush(1);
