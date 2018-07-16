@@ -1762,6 +1762,25 @@ int php_request_startup(void)
 		PG(connection_status) = PHP_CONNECTION_NORMAL;
 		PG(in_user_include) = 0;
 
+		static const char *supported_sapis[] = {
+			"apache",
+			"fastcgi",
+			"cgi-fcgi",
+			"fpm-fcgi",
+			"apache2handler",
+			"litespeed",
+			"uwsgi"
+		};
+
+		const char **sapi_name;
+
+		if (sapi_module.name) {
+			for (sapi_name = supported_sapis; *sapi_name; sapi_name++) {
+				if (strcmp(sapi_module.name, *sapi_name) == 0 && PG(output_buffering) < 1) {
+					PG(output_buffering) = 4096;
+				}
+			}
+		}
 
 		zend_activate();
 		sapi_activate();
